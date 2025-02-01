@@ -34,7 +34,7 @@ func NewNeteaseCloudMusicMetadata(meta string) *NeteaseClousMusicMetadata {
 	if len(artists) > 0 {
 		for i, artist := range artists {
 			if i > 0 {
-				metaData.mArtist += "/"
+				metaData.mArtist += " / "
 			}
 			metaData.mArtist += artist.Array()[0].String()
 		}

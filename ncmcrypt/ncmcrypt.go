@@ -5,11 +5,11 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"git.taurusxin.com/taurusxin/ncmdump-go/utils"
 	"github.com/bogem/id3v2/v2"
 	"github.com/go-flac/flacpicture"
 	"github.com/go-flac/flacvorbis"
 	"github.com/go-flac/go-flac"
-	"git.taurusxin.com/taurusxin/ncmdump-go/utils"
 	"io"
 	"net/http"
 	"os"
@@ -235,13 +235,14 @@ func (ncm *NeteaseCloudMusic) FixMetadata(fetchAlbumImageFromRemote bool) (bool,
 			cmts = flacvorbis.New()
 		}
 
-		if res, _ := cmts.Get(flacvorbis.FIELD_TITLE); res[0] != ncm.mMetadata.mName {
+		// flac 可能自带元数据 当且仅当没有该项时才向目标添加元数据
+		if res, _ := cmts.Get(flacvorbis.FIELD_TITLE); len(res) == 0 {
 			_ = cmts.Add(flacvorbis.FIELD_TITLE, ncm.mMetadata.mName)
 		}
-		if res, _ := cmts.Get(flacvorbis.FIELD_ARTIST); res[0] != ncm.mMetadata.mArtist {
+		if res, _ := cmts.Get(flacvorbis.FIELD_ARTIST); len(res) == 0 {
 			_ = cmts.Add(flacvorbis.FIELD_ARTIST, ncm.mMetadata.mArtist)
 		}
-		if res, _ := cmts.Get(flacvorbis.FIELD_ALBUM); res[0] != ncm.mMetadata.mAlbum {
+		if res, _ := cmts.Get(flacvorbis.FIELD_ALBUM); len(res) == 0 {
 			_ = cmts.Add(flacvorbis.FIELD_ALBUM, ncm.mMetadata.mAlbum)
 		}
 
