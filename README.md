@@ -6,6 +6,10 @@
 
 你也可以去 https://git.taurusxin.com/taurusxin/ncmdump-gui 下载基于本项目的 gui 可视化图形应用，只需简单点击即可自动转换。
 
+## 如何提 Issue
+
+由于本站恶意机器人注册过多，已关闭账号注册，如果需要提 Issue 请前往 [GitHub](https://github.com/taurusxin/ncmdump)，必须注明 Issue 的主题为 ncmdump-go，敬请谅解。
+
 ## 安装
 
 你可以使用去 [releases](https://git.taurusxin.com/taurusxin/ncmdump-go/releases/latest) 下载最新版预编译好的二进制文件，或者你也可以用包管理器来安装
