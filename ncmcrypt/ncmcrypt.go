@@ -5,15 +5,16 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"git.taurusxin.com/taurusxin/ncmdump-go/utils"
 	"github.com/bogem/id3v2/v2"
 	"github.com/go-flac/flacpicture"
 	"github.com/go-flac/flacvorbis"
 	"github.com/go-flac/go-flac"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
 )
 
 type NcmFormat = string
@@ -180,7 +181,7 @@ func (ncm *NeteaseCloudMusic) FixMetadata(fetchAlbumImageFromRemote bool) (bool,
 		}
 	}
 	switch ncm.mFormat {
-case Mp3:
+	case Mp3:
 		audioFile, err := id3v2.Open(ncm.mDumpFilePath, id3v2.Options{Parse: true})
 		if err != nil {
 			return false, err
