@@ -59,7 +59,7 @@ func main() {
 	}
 
 	if *showVersion {
-		fmt.Println("ncmdump version 1.7.4")
+		fmt.Println("ncmdump version 1.7.5")
 		os.Exit(0)
 	}
 
