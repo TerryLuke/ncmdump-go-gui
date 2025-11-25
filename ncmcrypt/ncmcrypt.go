@@ -152,7 +152,7 @@ func (ncm *NeteaseCloudMusic) Dump(targetDir string) (bool, error) {
 			outputStream = output
 		}
 
-		outputStream.Write(buffer)
+		outputStream.Write(buffer[:n])
 	}
 
 	outputStream.Close()
@@ -179,7 +179,8 @@ func (ncm *NeteaseCloudMusic) FixMetadata(fetchAlbumImageFromRemote bool) (bool,
 			}
 		}
 	}
-	if ncm.mFormat == Mp3 {
+	switch ncm.mFormat {
+case Mp3:
 		audioFile, err := id3v2.Open(ncm.mDumpFilePath, id3v2.Options{Parse: true})
 		if err != nil {
 			return false, err
@@ -205,7 +206,7 @@ func (ncm *NeteaseCloudMusic) FixMetadata(fetchAlbumImageFromRemote bool) (bool,
 		if err != nil {
 			return false, err
 		}
-	} else if ncm.mFormat == Flac {
+	case Flac:
 		audioFile, err := flac.ParseFile(ncm.mDumpFilePath)
 		if err != nil {
 			return false, err
