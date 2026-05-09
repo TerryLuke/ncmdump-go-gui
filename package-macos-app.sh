@@ -6,8 +6,8 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
 command -v fyne >/dev/null 2>&1 || {
-  echo "未找到 fyne 命令。请先安装： go install fyne.io/fyne/v2/cmd/fyne@latest" >&2
-  echo "（或新版） go install fyne.io/tools/cmd/fyne@latest" >&2
+  echo "未找到 fyne 命令。请安装官方新版 CLI：" >&2
+  echo "  go install fyne.io/tools/cmd/fyne@latest" >&2
   exit 1
 }
 
@@ -22,10 +22,11 @@ fi
 # 从 FyneApp.toml 同步版本较繁琐，此处与 internal/version 保持一致即可
 APP_VER=$(grep -E '^const String' internal/version/version.go | sed -n 's/.*"\(.*\)".*/\1/p')
 
+# fyne.io/tools/cmd/fyne 使用 --id / --app-version（旧 fyne.io/fyne/v2/cmd/fyne 已弃用）
 fyne package --release \
-  --appID com.taurusxin.ncmdump-go \
+  --id com.taurusxin.ncmdump-go \
   --name "ncmdump-go" \
-  --appVersion "${APP_VER}" \
+  --app-version "${APP_VER}" \
   --icon Icon.png
 
 mv -f ncmdump-go.app build/

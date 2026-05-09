@@ -1,6 +1,6 @@
 [Details]
-  Icon = "Icon.png"
-  Name = "ncmdump-go"
-  ID = "com.taurusxin.ncmdump-go"
-  Version = "1.7.5"
-  Build = 4
+Icon = "Icon.png"
+Name = "ncmdump-go"
+ID = "com.taurusxin.ncmdump-go"
+Version = "1.7.5"
+Build = 8

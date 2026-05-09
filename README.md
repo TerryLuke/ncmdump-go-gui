@@ -34,10 +34,10 @@ ncmdump-go --gui
 
 ### 打包为 macOS 应用程序（.app）
 
-1. 安装 Fyne 命令行工具（任选其一）：
+1. 安装 Fyne 官方命令行工具（`fyne.io/fyne/v2/cmd/fyne` 已弃用，请用下面这个）：
 
    ```shell
-   go install fyne.io/fyne/v2/cmd/fyne@latest
+   go install fyne.io/tools/cmd/fyne@latest
    ```
 
 2. 在项目根目录执行：
