@@ -27,6 +27,9 @@ config.yaml
 # build files
 build/*
 
+# Fyne 打包若落在仓库根目录
+ncmdump-go.app/
+
 # database files
 *.sqlite3
 

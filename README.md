@@ -32,6 +32,32 @@ scoop install ncmdump-go # 安装 ncmdump-go
 ncmdump-go --gui
 ```
 
+### 打包为 macOS 应用程序（.app）
+
+1. 安装 Fyne 命令行工具（任选其一）：
+
+   ```shell
+   go install fyne.io/fyne/v2/cmd/fyne@latest
+   ```
+
+2. 在项目根目录执行：
+
+   ```shell
+   ./package-macos-app.sh
+   ```
+
+   会生成 `build/ncmdump-go.app`（需本机已配置 Xcode Command Line Tools，且 **CGO 已启用**，以便链接图形界面）。
+
+3. 安装到「应用程序」文件夹，例如在终端执行：
+
+   ```shell
+   cp -R build/ncmdump-go.app /Applications/
+   ```
+
+   也可在访达中把 `build/ncmdump-go.app` 拖入「应用程序」。首次打开未签名应用若被拦截，可在「系统设置 → 隐私与安全性」中允许，或对应用图标使用右键 **打开**。
+
+   **说明**：从访达双击 `.app` 时，系统常只传入可执行文件路径（无 `-psn_` 等附加参数），若仍按「无参 CLI」逻辑会直接退出，看起来像闪退。当前版本会检测是否运行于 `*.app/Contents/MacOS/` 下并在无其它参数时启动图形界面。若在终端执行包内二进制并需要命令行帮助，请显式加上 `-h` 等参数。
+
 使用 `-h` 或 `--help` 参数来打印帮助
 
 ```shell

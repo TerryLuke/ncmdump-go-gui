@@ -14,6 +14,31 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
+// macOS：从「应用程序」里双击 .app 时，多数情况下只有可执行文件路径这一条 argv，不会带 -psn_。
+// 若在解析 CLI 之前无法识别为 GUI 启动，会误走「无参数打印帮助并退出」，看起来像闪退。
+func runningInMacOSAppBundle() bool {
+	exe, err := os.Executable()
+	if err != nil {
+		return false
+	}
+	return strings.Contains(exe, ".app/Contents/MacOS/")
+}
+
+// 在 .app 内且除 Finder 遗留的 -psn_* 外没有任何参数时，应直接打开图形界面
+// （访达「将文件拖到程序坞图标上」等会附带真实路径，此时须走 CLI 分支）。
+func shouldLaunchBundledGUI() bool {
+	if !runningInMacOSAppBundle() {
+		return false
+	}
+	for _, a := range os.Args[1:] {
+		if strings.HasPrefix(a, "-psn_") {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
 func processOneCLI(filePath, outDir string) error {
 	out, err := convert.ProcessFile(filePath, outDir)
 	if errors.Is(err, convert.ErrSkipped) {
@@ -34,6 +59,11 @@ func processOneCLI(filePath, outDir string) error {
 }
 
 func main() {
+	if shouldLaunchBundledGUI() {
+		gui.Run()
+		return
+	}
+
 	var sourceDir string
 	var outputDir string
 	showHelp := flag.BoolP("help", "h", false, "Display help message")
