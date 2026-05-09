@@ -19,9 +19,16 @@ import (
 )
 
 // Run opens the graphical interface and blocks until the window is closed.
-func Run() {
-	a := app.NewWithID("com.taurusxin.ncmdump-go")
-	w := a.NewWindow("ncmdump-go")
+// icon 建议传入嵌入的 PNG，否则程序坞/窗口仍会显示 Fyne 默认图标（与 .app 外层图标不一致）。
+func Run(icon fyne.Resource) {
+	a := app.NewWithID("com.my.ncmdump-go")
+	if icon != nil {
+		a.SetIcon(icon)
+	}
+	w := a.NewWindow("ncmdump-go-gui")
+	if icon != nil {
+		w.SetIcon(icon)
+	}
 	w.Resize(fyne.NewSize(720, 520))
 	w.SetFixedSize(false)
 

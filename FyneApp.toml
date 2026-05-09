@@ -1,6 +1,6 @@
 [Details]
 Icon = "Icon.png"
-Name = "ncmdump-go"
-ID = "com.taurusxin.ncmdump-go"
-Version = "1.7.5"
-Build = 8
+Name = "ncmdump-go-gui"
+ID = "com.my.ncmdump-go"
+Version = "2.0.0"
+Build = 10

@@ -1,11 +1,14 @@
 package main
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"fyne.io/fyne/v2"
 
 	"git.taurusxin.com/taurusxin/ncmdump-go/internal/convert"
 	"git.taurusxin.com/taurusxin/ncmdump-go/internal/gui"
@@ -13,6 +16,16 @@ import (
 	"git.taurusxin.com/taurusxin/ncmdump-go/utils"
 	flag "github.com/spf13/pflag"
 )
+
+//go:embed Icon.png
+var embeddedAppIcon []byte
+
+func appWindowIcon() fyne.Resource {
+	if len(embeddedAppIcon) == 0 {
+		return nil
+	}
+	return fyne.NewStaticResource("Icon.png", embeddedAppIcon)
+}
 
 // macOS：从「应用程序」里双击 .app 时，多数情况下只有可执行文件路径这一条 argv，不会带 -psn_。
 // 若在解析 CLI 之前无法识别为 GUI 启动，会误走「无参数打印帮助并退出」，看起来像闪退。
@@ -60,7 +73,7 @@ func processOneCLI(filePath, outDir string) error {
 
 func main() {
 	if shouldLaunchBundledGUI() {
-		gui.Run()
+		gui.Run(appWindowIcon())
 		return
 	}
 
@@ -75,7 +88,7 @@ func main() {
 	flag.Parse()
 
 	if *showGUI {
-		gui.Run()
+		gui.Run(appWindowIcon())
 		return
 	}
 

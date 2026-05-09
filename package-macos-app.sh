@@ -24,7 +24,7 @@ APP_VER=$(grep -E '^const String' internal/version/version.go | sed -n 's/.*"\(.
 
 # fyne.io/tools/cmd/fyne 使用 --id / --app-version（旧 fyne.io/fyne/v2/cmd/fyne 已弃用）
 fyne package --release \
-  --id com.taurusxin.ncmdump-go \
+  --id com.my.ncmdump-go \
   --name "ncmdump-go" \
   --app-version "${APP_VER}" \
   --icon Icon.png
