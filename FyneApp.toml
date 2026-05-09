@@ -3,4 +3,4 @@ Icon = "Icon.png"
 Name = "ncmdump-go-gui"
 ID = "com.my.ncmdump-go"
 Version = "1.7.5"
-Build = 11
+Build = 13

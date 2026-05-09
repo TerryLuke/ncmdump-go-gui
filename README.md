@@ -103,7 +103,17 @@ ncmdump-go -d source_dir -o output_dir -r
 
 ### 输出格式（`--format`）
 
-解密得到的原始数据只会是 **MP3** 或 **FLAC** 之一。`--format auto`（默认）即保持该格式。可选：`mp3`、`flac`、`wav`、`aac`（封装为 **`.m4a`**）。若所选格式与解密结果不一致，或需要 **WAV / AAC**，程序会在写入标签后调用 **ffmpeg** 转码，请先安装 ffmpeg 并加入 `PATH`（例如 macOS：`brew install ffmpeg`）。
+解密得到的原始数据只会是 **MP3** 或 **FLAC** 之一。`--format auto`（默认）即保持该格式。可选：`mp3`、`flac`、`wav`、`aac`（封装为 **`.m4a`**）。若所选格式与解密结果不一致，或需要 **WAV / AAC**，程序会在写入标签后调用 **ffmpeg** 转码。请先安装 ffmpeg（macOS：`brew install ffmpeg`）。
+
+**macOS：** 终端里运行时 `PATH` 通常含 `/opt/homebrew/bin`；而从「应用程序」里打开打包的 `.app` 时，系统给 GUI 的 `PATH` 往往很短，`ffmpeg` 可能找不到。本项目会自动尝试 `/opt/homebrew/bin/ffmpeg`、`/usr/local/bin/ffmpeg` 等常见路径。
+
+若仍未找到，可在**同一终端**里带环境变量启动应用（路径按本机修改）：
+
+```shell
+NCMDUMP_FFMPEG=/opt/homebrew/bin/ffmpeg open -a ncmdump-go
+```
+
+亦可用 `launchctl setenv NCMDUMP_FFMPEG /opt/homebrew/bin/ffmpeg`（效果因系统版本而异）。命令行使用 `ncmdump-go` 二进制时一般不受此影响。
 
 ```shell
 ncmdump-go 1.ncm --format wav -o output_dir

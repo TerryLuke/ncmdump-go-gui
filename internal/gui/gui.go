@@ -225,7 +225,7 @@ func Run(icon fyne.Resource) {
 		widget.NewLabel("选择输出目录（可选）"),
 		outRow,
 		container.NewHBox(widget.NewLabel("输出格式"), formatSel),
-		widget.NewLabel("非「自动」且需转码时请安装 ffmpeg（brew install ffmpeg）"),
+		widget.NewLabel("非「自动」且需转码时需 ffmpeg；打包后若无 PATH 可设置 NCMDUMP_FFMPEG 或安装在 /opt/homebrew/bin"),
 		recursive,
 		formIntro,
 		toolbar,
