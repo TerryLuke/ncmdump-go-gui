@@ -24,6 +24,14 @@ scoop install ncmdump-go # 安装 ncmdump-go
 
 ## 使用方法
 
+## 图形界面（Fyne）
+
+启动内置的桌面图形界面（添加 .ncm 或整文件夹、可选输出目录与递归扫描，与命令行相同的转换与元数据逻辑）：
+
+```shell
+ncmdump-go --gui
+```
+
 使用 `-h` 或 `--help` 参数来打印帮助
 
 ```shell

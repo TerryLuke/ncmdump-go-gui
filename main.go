@@ -1,39 +1,34 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"git.taurusxin.com/taurusxin/ncmdump-go/ncmcrypt"
-	"git.taurusxin.com/taurusxin/ncmdump-go/utils"
 	"os"
 	"path/filepath"
+	"strings"
 
+	"git.taurusxin.com/taurusxin/ncmdump-go/internal/convert"
+	"git.taurusxin.com/taurusxin/ncmdump-go/internal/gui"
+	"git.taurusxin.com/taurusxin/ncmdump-go/internal/version"
+	"git.taurusxin.com/taurusxin/ncmdump-go/utils"
 	flag "github.com/spf13/pflag"
 )
 
-func processFile(filePath string, outputDir string) error {
-	// skip if the extension is not .ncm
-	if filePath[len(filePath)-4:] != ".ncm" {
+func processOneCLI(filePath, outDir string) error {
+	out, err := convert.ProcessFile(filePath, outDir)
+	if errors.Is(err, convert.ErrSkipped) {
 		return nil
 	}
-
-	// process the file
-	currentFile, err := ncmcrypt.NewNeteaseCloudMusic(filePath)
 	if err != nil {
-		utils.ErrorPrintfln("Reading '%s' failed: %s", filePath, err.Error())
-		return err
-	}
-	dump, err := currentFile.Dump(outputDir)
-	if err != nil {
-		utils.ErrorPrintfln("Processing '%s' failed: %s", filePath, err.Error())
-		return err
-	}
-	if dump {
-		metadata, err := currentFile.FixMetadata(true)
-		if !metadata {
+		if out != "" {
 			utils.WarningPrintfln("Fix metadata for '%s' failed: %s", filePath, err.Error())
-			return err
+		} else {
+			utils.ErrorPrintfln("Processing '%s' failed: %s", filePath, err.Error())
 		}
-		utils.DonePrintfln("'%s' -> '%s'", filePath, currentFile.GetDumpFilePath())
+		return err
+	}
+	if out != "" {
+		utils.DonePrintfln("'%s' -> '%s'", filePath, out)
 	}
 	return nil
 }
@@ -43,10 +38,16 @@ func main() {
 	var outputDir string
 	showHelp := flag.BoolP("help", "h", false, "Display help message")
 	showVersion := flag.BoolP("version", "v", false, "Display version information")
+	showGUI := flag.Bool("gui", false, "Launch graphical interface")
 	processRecursive := flag.BoolP("recursive", "r", false, "Process all files in the directory recursively")
 	flag.StringVarP(&outputDir, "output", "o", "", "Output directory for the dump files")
 	flag.StringVarP(&sourceDir, "dir", "d", "", "Process all files in the directory")
 	flag.Parse()
+
+	if *showGUI {
+		gui.Run()
+		return
+	}
 
 	if len(os.Args) == 1 {
 		flag.Usage()
@@ -59,7 +60,7 @@ func main() {
 	}
 
 	if *showVersion {
-		fmt.Println("ncmdump version 1.7.5")
+		fmt.Println("ncmdump version " + version.String)
 		os.Exit(0)
 	}
 
@@ -103,12 +104,11 @@ func main() {
 				if utils.IsRegularFile(p) {
 					parentDir := filepath.Dir(destinationPath)
 					_ = os.MkdirAll(parentDir, os.ModePerm)
-					_ = processFile(p, parentDir)
+					_ = processOneCLI(p, parentDir)
 				}
 				return nil
 			})
 		} else {
-			// dump files in the folder
 			files, err := os.ReadDir(sourceDir)
 			if err != nil {
 				utils.ErrorPrintfln("Unable to read directory: '%s'", sourceDir)
@@ -122,23 +122,21 @@ func main() {
 
 				filePath := filepath.Join(sourceDir, file.Name())
 				if outputDirSpecified {
-					_ = processFile(filePath, outputDir)
+					_ = processOneCLI(filePath, outputDir)
 				} else {
-					_ = processFile(filePath, sourceDir)
+					_ = processOneCLI(filePath, sourceDir)
 				}
 			}
 		}
 	} else {
-		// process files from args
 		for _, filePath := range flag.Args() {
-			// skip if the extension is not .ncm
-			if filePath[len(filePath)-4:] != ".ncm" {
+			if !strings.EqualFold(filepath.Ext(filePath), ".ncm") {
 				continue
 			}
 			if outputDirSpecified {
-				_ = processFile(filePath, outputDir)
+				_ = processOneCLI(filePath, outputDir)
 			} else {
-				_ = processFile(filePath, sourceDir)
+				_ = processOneCLI(filePath, "")
 			}
 		}
 	}
