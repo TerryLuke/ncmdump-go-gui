@@ -274,6 +274,11 @@ func (ncm *NeteaseCloudMusic) GetDumpFilePath() string {
 	return path
 }
 
+// DetectedFormat returns the container detected after Dump (Mp3 or Flac). Empty string before Dump completes.
+func (ncm *NeteaseCloudMusic) DetectedFormat() NcmFormat {
+	return ncm.mFormat
+}
+
 // NewNeteaseCloudMusic returns a new NeteaseCloudMusic instance, if the format of the file is incorrect, the error will be returned.
 func NewNeteaseCloudMusic(filePath string) (*NeteaseCloudMusic, error) {
 	ncm := &NeteaseCloudMusic{

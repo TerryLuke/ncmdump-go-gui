@@ -52,14 +52,14 @@ func shouldLaunchBundledGUI() bool {
 	return true
 }
 
-func processOneCLI(filePath, outDir string) error {
-	out, err := convert.ProcessFile(filePath, outDir)
+func processOneCLI(filePath, outDir string, format convert.OutputFormat) error {
+	out, err := convert.ProcessFile(filePath, outDir, format)
 	if errors.Is(err, convert.ErrSkipped) {
 		return nil
 	}
 	if err != nil {
 		if out != "" {
-			utils.WarningPrintfln("Fix metadata for '%s' failed: %s", filePath, err.Error())
+			utils.WarningPrintfln("'%s' failed: %s", filePath, err.Error())
 		} else {
 			utils.ErrorPrintfln("Processing '%s' failed: %s", filePath, err.Error())
 		}
@@ -83,9 +83,16 @@ func main() {
 	showVersion := flag.BoolP("version", "v", false, "Display version information")
 	showGUI := flag.Bool("gui", false, "Launch graphical interface")
 	processRecursive := flag.BoolP("recursive", "r", false, "Process all files in the directory recursively")
+	outputFormat := flag.String("format", "auto", "Output format: auto (keep mp3/flac), mp3, flac, wav, aac (m4a); transcoding needs ffmpeg in PATH")
 	flag.StringVarP(&outputDir, "output", "o", "", "Output directory for the dump files")
 	flag.StringVarP(&sourceDir, "dir", "d", "", "Process all files in the directory")
 	flag.Parse()
+
+	outFmt, err := convert.ParseOutputFormat(*outputFormat)
+	if err != nil {
+		utils.ErrorPrintfln("%s", err.Error())
+		os.Exit(1)
+	}
 
 	if *showGUI {
 		gui.Run(appWindowIcon())
@@ -147,7 +154,7 @@ func main() {
 				if utils.IsRegularFile(p) {
 					parentDir := filepath.Dir(destinationPath)
 					_ = os.MkdirAll(parentDir, os.ModePerm)
-					_ = processOneCLI(p, parentDir)
+					_ = processOneCLI(p, parentDir, outFmt)
 				}
 				return nil
 			})
@@ -165,9 +172,9 @@ func main() {
 
 				filePath := filepath.Join(sourceDir, file.Name())
 				if outputDirSpecified {
-					_ = processOneCLI(filePath, outputDir)
+					_ = processOneCLI(filePath, outputDir, outFmt)
 				} else {
-					_ = processOneCLI(filePath, sourceDir)
+					_ = processOneCLI(filePath, sourceDir, outFmt)
 				}
 			}
 		}
@@ -177,9 +184,9 @@ func main() {
 				continue
 			}
 			if outputDirSpecified {
-				_ = processOneCLI(filePath, outputDir)
+				_ = processOneCLI(filePath, outputDir, outFmt)
 			} else {
-				_ = processOneCLI(filePath, "")
+				_ = processOneCLI(filePath, "", outFmt)
 			}
 		}
 	}

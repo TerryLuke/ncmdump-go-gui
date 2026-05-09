@@ -2,6 +2,7 @@ package convert
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,10 +14,10 @@ import (
 // ErrSkipped is returned when the path is not a .ncm file and is intentionally ignored.
 var ErrSkipped = errors.New("skipped: not a .ncm file")
 
-// ProcessFile converts one NetEase Cloud Music .ncm file to mp3/flac and fixes metadata.
+// ProcessFile converts one NetEase Cloud Music .ncm file, applies metadata, then optionally
+// transcodes to format (non-auto 时需 ffmpeg).
 // If outputDir is non-empty, the output file is written there; otherwise it stays beside the source file.
-// When metadata fix fails, the returned path is still the dump path (file was created).
-func ProcessFile(filePath, outputDir string) (outPath string, err error) {
+func ProcessFile(filePath, outputDir string, format OutputFormat) (outPath string, err error) {
 	if len(filePath) < 4 || !strings.EqualFold(filePath[len(filePath)-4:], ".ncm") {
 		return "", ErrSkipped
 	}
@@ -32,11 +33,36 @@ func ProcessFile(filePath, outputDir string) (outPath string, err error) {
 	if !dump {
 		return "", nil
 	}
-	metadata, err := currentFile.FixMetadata(true)
-	if !metadata {
-		return currentFile.GetDumpFilePath(), err
+	metadataOK, err := currentFile.FixMetadata(true)
+	dumpPath := currentFile.GetDumpFilePath()
+	if !metadataOK {
+		return dumpPath, err
 	}
-	return currentFile.GetDumpFilePath(), nil
+
+	native := currentFile.DetectedFormat()
+	if format == FormatAuto || !needsTranscode(format, native) {
+		return dumpPath, nil
+	}
+
+	if err := lookPathFFmpeg(); err != nil {
+		return dumpPath, err
+	}
+
+	ext := format.fileExtension()
+	if ext == "" {
+		return dumpPath, fmt.Errorf("invalid output format %q", format)
+	}
+	finalPath := utils.ReplaceExtension(dumpPath, ext)
+
+	if err := transcodeTo(dumpPath, finalPath, format); err != nil {
+		_ = os.Remove(finalPath)
+		return dumpPath, fmt.Errorf("转码失败: %w", err)
+	}
+	_ = os.Remove(dumpPath)
+	if abs, err := filepath.Abs(finalPath); err == nil {
+		return abs, nil
+	}
+	return finalPath, nil
 }
 
 // CollectNCMInDir lists .ncm files under dir. If recursive is false, only the top level is scanned.

@@ -101,6 +101,18 @@ ncmdump-go -d source_dir -o output_dir
 ncmdump-go -d source_dir -o output_dir -r
 ```
 
+### 输出格式（`--format`）
+
+解密得到的原始数据只会是 **MP3** 或 **FLAC** 之一。`--format auto`（默认）即保持该格式。可选：`mp3`、`flac`、`wav`、`aac`（封装为 **`.m4a`**）。若所选格式与解密结果不一致，或需要 **WAV / AAC**，程序会在写入标签后调用 **ffmpeg** 转码，请先安装 ffmpeg 并加入 `PATH`（例如 macOS：`brew install ffmpeg`）。
+
+```shell
+ncmdump-go 1.ncm --format wav -o output_dir
+ncmdump-go 1.ncm --format aac
+ncmdump-go -d src --format mp3 -o out
+```
+
+图形界面中在「输出格式」下拉里可选同样选项。
+
 ## 开发
 
 使用 go module 下载 ncmdump-go 包

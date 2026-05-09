@@ -29,7 +29,7 @@ func Run(icon fyne.Resource) {
 	if icon != nil {
 		w.SetIcon(icon)
 	}
-	w.Resize(fyne.NewSize(720, 520))
+	w.Resize(fyne.NewSize(720, 560))
 	w.SetFixedSize(false)
 
 	var taskPaths []string
@@ -46,6 +46,16 @@ func Run(icon fyne.Resource) {
 
 	outputEntry := widget.NewEntry()
 	outputEntry.SetPlaceHolder("留空则输出到各 .ncm 文件所在目录")
+
+	formatOpts := []string{
+		"自动（与解密一致：MP3 或 FLAC）",
+		"MP3",
+		"FLAC",
+		"WAV",
+		"AAC（M4A）",
+	}
+	formatSel := widget.NewSelect(formatOpts, nil)
+	formatSel.SetSelected(formatOpts[0])
 
 	recursive := widget.NewCheck("递归扫描子文件夹（仅“添加文件夹”时有效）", nil)
 
@@ -99,6 +109,21 @@ func Run(icon fyne.Resource) {
 		}, w)
 	})
 
+	selectedFormat := func() convert.OutputFormat {
+		switch formatSel.Selected {
+		case "MP3":
+			return convert.FormatMP3
+		case "FLAC":
+			return convert.FormatFLAC
+		case "WAV":
+			return convert.FormatWAV
+		case "AAC（M4A）":
+			return convert.FormatAAC
+		default:
+			return convert.FormatAuto
+		}
+	}
+
 	clearBtn := widget.NewButton("清空列表", func() {
 		taskPaths = nil
 		pathList.Refresh()
@@ -138,7 +163,7 @@ func Run(icon fyne.Resource) {
 				fyne.Do(func() {
 					appendLog(fmt.Sprintf("[进度] %d/%d — %s", idx, total, p))
 				})
-				out, err := convert.ProcessFile(p, outDir)
+				out, err := convert.ProcessFile(p, outDir, selectedFormat())
 				if errors.Is(err, convert.ErrSkipped) {
 					fyne.Do(func() {
 						appendLog(fmt.Sprintf("[跳过] 非 .ncm 文件：%s", p))
@@ -177,8 +202,9 @@ func Run(icon fyne.Resource) {
 	aboutBtn := widget.NewButton("关于", func() {
 		dialog.ShowInformation("关于 ncmdump-go",
 			"版本 "+version.String+"\n\n"+
-				"将网易云音乐 .ncm 解密为 mp3/flac，并写入元数据；"+
-				"网易云 3.x 若文件中无封面，会尝试从网络获取（需联网）。",
+				"将网易云音乐 .ncm 解密为 MP3/FLAC，并写入元数据；"+
+				"网易云 3.x 若文件中无封面，会尝试从网络获取（需联网）。\n\n"+
+				"选择 WAV / AAC 等非原始格式时需本机已安装 ffmpeg 并完成转码。",
 			w)
 	})
 
@@ -198,6 +224,8 @@ func Run(icon fyne.Resource) {
 	content := container.NewVBox(
 		widget.NewLabel("选择输出目录（可选）"),
 		outRow,
+		container.NewHBox(widget.NewLabel("输出格式"), formatSel),
+		widget.NewLabel("非「自动」且需转码时请安装 ffmpeg（brew install ffmpeg）"),
 		recursive,
 		formIntro,
 		toolbar,
